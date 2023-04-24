@@ -12,6 +12,7 @@ RSpec.describe 'Doctors show page', type: :feature do
     DoctorPatient.create!(doctor: @doctor1, patient: @patient1)
     DoctorPatient.create!(doctor: @doctor1, patient: @patient2)
     DoctorPatient.create!(doctor: @doctor2, patient: @patient3)
+    DoctorPatient.create!(doctor: @doctor2, patient: @patient1)
     visit doctor_path(@doctor1)
   end
   describe 'when I visit the doctors show page' do
@@ -28,10 +29,19 @@ RSpec.describe 'Doctors show page', type: :feature do
     it 'I also see where the doctor works and the name of their patients' do
       expect(page).to have_content("Hospital: #{@hospital1.name}")
       expect(page).to_not have_content("Hospital: #{@hospital2.name}")
-      
+
       expect(page).to have_content(@patient1.name)
       expect(page).to have_content(@patient2.name)
       expect(page).to_not have_content(@patient3.name)
+    end
+
+    it 'I see a button to remove a patient next to all the patients' do
+      expect(page).to have_button("Remove Patient")
+      find("#patient-#{@patient1.id}").click_button("Remove Patient")
+      expect(page).to_not have_content(@patient1.name)
+
+      visit doctor_path(@doctor2)
+      expect(page).to have_content(@patient1.name)
     end
   end
 end
